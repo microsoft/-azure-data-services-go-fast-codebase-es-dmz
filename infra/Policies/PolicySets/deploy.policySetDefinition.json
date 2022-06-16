@@ -1,0 +1,66 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policySetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the name of the policy Set to which the policy gets assigned to."
+            }
+        },
+        "policySetDescription": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies a description of the policy set."
+            }
+        },
+        "policySetParameters": {
+            "type": "object",
+            "metadata": {
+                "description": "Specifies a description of the policy set."
+            }
+        },
+        "policyDefinitions": {
+            "type": "array",
+            "metadata": {
+                "description": "List of policy IDs that will be assigned to this policy set."
+            }
+        },
+        "policySetMetadata": {
+            "type": "object",
+            "metadata": {
+                "description": "Specifies list of policy definition references."
+            }
+        },
+        "policyDefinitionGroups": {
+            "type": "array",
+            "metadata": {
+                "description": "Specifies list of groups of policy definition references within the policy set definition."
+            }
+        }
+    },
+    "variables": {
+        "policySetName": "[parameters('policySetName')]",
+        "policySetDescription": "[parameters('policySetDescription')]",
+        "policySetParameters": "[parameters('policySetParameters')]",
+        "policyDefinitions": "[parameters('policyDefinitions')]",
+        "policySetMetadata": "[parameters('policySetMetadata')]",
+        "policyDefinitionGroups": "[parameters('policyDefinitionGroups')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/policySetDefinitions",
+            "apiVersion": "2020-03-01",
+            "name": "[variables('policySetName')]",
+            "properties": {
+                "policyType": "Custom",
+                "displayName": "[variables('policySetName')]",
+                "description": "[variables('policySetDescription')]",
+                "metadata": "[variables('policySetMetadata')]",
+                "parameters": "[variables('policySetParameters')]",
+                "policyDefinitions": "[variables('policyDefinitions')]",
+                "policyDefinitionGroups": "[variables('policyDefinitionGroups')]"
+            }
+        }
+    ]
+}

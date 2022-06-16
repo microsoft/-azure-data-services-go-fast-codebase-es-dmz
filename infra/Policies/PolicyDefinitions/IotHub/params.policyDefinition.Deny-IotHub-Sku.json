@@ -1,0 +1,87 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-IotHub-Sku"
+        },
+        "policyDescription": {
+            "value": "Enforces iot hub SKUs."
+        },
+        "policyMode": {
+            "value": "Indexed"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                },
+                "allowedSkuNames": {
+                    "type": "Array",
+                    "metadata": {
+                        "displayName": "Allowed SKU Names",
+                        "description": "Specifies the allowed sku names"
+                    },
+                    "defaultValue": [
+                        "S1",
+                        "S2",
+                        "S3"
+                    ]
+                },
+                "maxSkuCapacity": {
+                    "type": "Integer",
+                    "metadata": {
+                        "displayName": "Maximum SKU Capacity",
+                        "description": "Specifies the maximum sku capacity"
+                    },
+                    "defaultValue": 40
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Devices/IotHubs"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.Devices/IotHubs/sku.name",
+                                    "notIn": "[parameters('allowedSkuNames')]"
+                                },
+                                {
+                                    "field": "Microsoft.Devices/IotHubs/sku.capacity",
+                                    "greater": "[parameters('maxSkuCapacity')]"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "Budget",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

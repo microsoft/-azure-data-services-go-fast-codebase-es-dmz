@@ -1,0 +1,83 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-Batch-Scale"
+        },
+        "policyDescription": {
+            "value": "Denies certain scale configurations for batch account vm pools."
+        },
+        "policyMode": {
+            "value": "All"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                },
+                "maxTargetDedicatedNodes": {
+                    "type": "Int",
+                    "metadata": {
+                        "displayName": "Maximum Target Dedicated Nodes",
+                        "description": "Specifies the maximum target for dedicated nodes"
+                    },
+                    "defaultValue": 10
+                },
+                "maxTargetLowPriorityNodes": {
+                    "type": "Int",
+                    "metadata": {
+                        "displayName": "Maximum Target Low Priority Nodes",
+                        "description": "Specifies the maximum target for low priority nodes"
+                    },
+                    "defaultValue": 15
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Batch/batchAccounts/pools"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.Batch/batchAccounts/pools/scaleSettings.fixedScale.targetDedicatedNodes",
+                                    "greater": "[parameters('maxTargetDedicatedNodes')]"
+                                },
+                                {
+                                    "field": "Microsoft.Batch/batchAccounts/pools/scaleSettings.fixedScale.targetLowPriorityNodes",
+                                    "greater": "[parameters('maxTargetLowPriorityNodes')]"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "Batch",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

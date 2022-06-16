@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-Synapse-Sql-Sku"
+        },
+        "policyDescription": {
+            "value": "Denies certain Synapse SQL Pool Sku's."
+        },
+        "policyMode": {
+            "value": "All"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                },
+                "allowedSynapseSqlSkus": {
+                    "type": "Array",
+                    "metadata": {
+                        "displayName": "Allowed subscriptions",
+                        "description": "A list of subscriptions IDs"
+                    },
+                    "defaultValue": [
+                        "DW100c",
+                        "DW200c",
+                        "DW300c",
+                        "DW400c",
+                        "DW500c",
+                        "DW1000c",
+                        "DW1500c",
+                        "DW2000c",
+                        "DW2500c",
+                        "DW3000c",
+                        "DW5000c",
+                        "DW6000c",
+                        "DW7500C",
+                        "DW10000c",
+                        "DW15000c",
+                        "DW30000c"
+                    ]
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Synapse/workspaces/sqlPools"
+                        },
+                        {
+                            "field": "Microsoft.Synapse/workspaces/sqlPools/sku.name",
+                            "notIn": "[parameters('allowedSynapseSqlSkus')]"
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "Synapse",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

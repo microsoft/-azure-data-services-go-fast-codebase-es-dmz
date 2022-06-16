@@ -1,0 +1,70 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-KeyVault-NetworkAclsBypass"
+        },
+        "policyDescription": {
+            "value": "Enforces bypass network level rules for key vault."
+        },
+        "policyMode": {
+            "value": "Indexed"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                },
+                "allowedBypassOptions": {
+                    "type": "Array",
+                    "metadata": {
+                        "displayName": "Allowed Bypass Options",
+                        "description": "Specifies which options are allowed to bypass the vnet configuration"
+                    },
+                    "defaultValue": [
+                        "None",
+                        "AzureServices"
+                    ]
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.KeyVault/vaults"
+                        },
+                        {
+                            "field": "Microsoft.Keyvault/vaults/networkAcls.bypass",
+                            "notIn": "[parameters('allowedBypassOptions')]"
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "Key Vault",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

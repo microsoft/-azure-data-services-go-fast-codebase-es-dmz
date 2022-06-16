@@ -1,0 +1,47 @@
+{
+  "firewallPrivateIp": {
+   "value": "10.0.0.4"
+  },
+  "privateDnsZoneIdBlob": {
+   "value": ""
+  },
+  "privateDnsZoneIdDataFactory": {
+   "value": ""
+  },
+  "privateDnsZoneIdDataFactoryPortal": {
+   "value": ""
+  },
+  "privateDnsZoneIdDfs": {
+   "value": ""
+  },
+  "privateDnsZoneIdKeyVault": {
+   "value": ""
+  },
+  "privateDnsZoneIdMySqlServer": {
+   "value": ""
+  },
+  "privateDnsZoneIdNamespace": {
+   "value": ""
+  },
+  "privateDnsZoneIdSqlServer": {
+   "value": ""
+  },
+  "privateDnsZoneIdSynapseDev": {
+   "value": ""
+  },
+  "privateDnsZoneIdSynapseSql": {
+   "value": ""
+  },
+  "purviewId": {
+   "value": "/subscriptions/035a1364-f00d-48e2-b582-4fe125905ee3/resourceGroups/dmz99-dev-governance/providers/Microsoft.Purview/accounts/dmz99-dev-purview001"
+  },
+  "purviewManagedEventHubId": {
+   "value": "/subscriptions/035a1364-f00d-48e2-b582-4fe125905ee3/resourceGroups/dmz99-dev-purview001/providers/Microsoft.EventHub/namespaces/Atlas-4d0800fa-41f3-4ea1-b05a-32e20bd758ed"
+  },
+  "purviewManagedStorageId": {
+   "value": "/subscriptions/035a1364-f00d-48e2-b582-4fe125905ee3/resourceGroups/dmz99-dev-purview001/providers/Microsoft.Storage/storageAccounts/scanaustraliaeastsvlhblh"
+  },
+  "vnetId": {
+   "value": "/subscriptions/035a1364-f00d-48e2-b582-4fe125905ee3/resourceGroups/dmz99-dev-network/providers/Microsoft.Network/virtualNetworks/dmz99-dev-vnet"
+  }
+}

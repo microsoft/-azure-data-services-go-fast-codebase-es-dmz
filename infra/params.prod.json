@@ -1,0 +1,68 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "northeurope"
+        },
+        "environment": {
+            "value": "prd"
+        },
+        "prefix": {
+            "value": "dmz"
+        },
+        "tags": {
+            "value": {}
+        },
+        "purviewRootCollectionAdminObjectIds": {
+            "value": []
+        },
+        "vnetAddressPrefix": {
+            "value": "10.0.0.0/16"
+        },
+        "azureFirewallSubnetAddressPrefix": {
+            "value": "10.0.0.0/24"
+        },
+        "servicesSubnetAddressPrefix": {
+            "value": "10.0.1.0/24"
+        },
+        "firewallPrivateIp": {
+            "value": "10.0.0.4"
+        },
+        "dnsServerAdresses": {
+            "value": [
+              "10.0.0.4"
+            ]
+        },
+        "firewallTier": {
+            "value": "Premium"
+        },
+        "firewallPolicyId": {
+            "value": ""
+        },
+        "privateDnsZoneIdBlob": {
+            "value": ""
+        },
+        "privateDnsZoneIdContainerRegistry": {
+            "value": ""
+        },
+        "privateDnsZoneIdKeyVault": {
+            "value": ""
+        },
+        "privateDnsZoneIdNamespace": {
+            "value": ""
+        },
+        "privateDnsZoneIdPurview": {
+            "value": ""
+        },
+        "privateDnsZoneIdPurviewPortal": {
+            "value": ""
+        },
+        "privateDnsZoneIdQueue": {
+            "value": ""
+        },
+        "privateDnsZoneIdSynapse": {
+            "value": ""
+        }
+    }
+}

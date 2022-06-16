@@ -1,0 +1,77 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-MySQL-MinimalTlsVersion"
+        },
+        "policyDescription": {
+            "value": "Enforces minimal tls versions for my sql servers."
+        },
+        "policyMode": {
+            "value": "Indexed"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                },
+                "tlsVersions": {
+                    "type": "Array",
+                    "metadata": {
+                        "displayName": "TLS Versions",
+                        "description": "Specifies the TLS versions that should be enforced"
+                    },
+                    "defaultValue": [
+                        "TLS1_2"
+                    ]
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.DBforMySQL/servers"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.DBforMySQL/servers/minimalTlsVersion",
+                                    "notIn": "[parameters('tlsVersions')]"
+                                },
+                                {
+                                    "field": "Microsoft.DBforMySQL/servers/sslEnforcement",
+                                    "notEquals": "Enabled"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "SQL",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

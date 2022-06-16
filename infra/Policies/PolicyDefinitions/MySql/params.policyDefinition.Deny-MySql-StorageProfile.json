@@ -1,0 +1,83 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-MySql-StorageProfile"
+        },
+        "policyDescription": {
+            "value": "Enforces geo-redundant database backup with minimum retention time in days."
+        },
+        "policyMode": {
+            "value": "Indexed"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                },
+                "minBackupRetentionDays": {
+                    "type": "Int",
+                    "metadata": {
+                        "displayName": "Minimum Backup Retention in Days",
+                        "description": "Specifies the minimum backup retention in days"
+                    },
+                    "defaultValue": 7
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.DBforMySQL/servers"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.DBforMySQL/servers/storageProfile.geoRedundantBackup",
+                                    "exists": false
+                                },
+                                {
+                                    "field": "Microsoft.DBforMySQL/servers/storageProfile.geoRedundantBackup",
+                                    "notEquals": "Enabled"
+                                },
+                                {
+                                    "field": "Microsoft.DBforMySQL/servers/storageProfile.backupRetentionDays",
+                                    "exists": false
+                                },
+                                {
+                                    "field": "Microsoft.DBforMySQL/servers/storageProfile.backupRetentionDays",
+                                    "less": "[parameters('minBackupRetentionDays')]"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "SQL",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

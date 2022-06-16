@@ -1,0 +1,98 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-Storage-Encryption"
+        },
+        "policyDescription": {
+            "value": "Enforce encryption for storage accounts."
+        },
+        "policyMode": {
+            "value": "Indexed"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Storage/storageAccounts"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.file.enabled",
+                                    "notEquals": true
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.file.keyType",
+                                    "notEquals": "Account"
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.blob.enabled",
+                                    "notEquals": true
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.blob.keyType",
+                                    "notEquals": "Account"
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.table.enabled",
+                                    "notEquals": true
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.table.keyType",
+                                    "notEquals": "Service"
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.queue.enabled",
+                                    "notEquals": true
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.services.queue.keyType",
+                                    "notEquals": "Service"
+                                },
+                                {
+                                    "field": "Microsoft.Storage/storageAccounts/encryption.keySource",
+                                    "notIn": [
+                                        "Microsoft.Storage",
+                                        "Microsoft.Keyvault"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "Storage",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

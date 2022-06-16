@@ -1,0 +1,105 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-Cache-Sku"
+        },
+        "policyDescription": {
+            "value": "Enforces certain SKUs for redis cache."
+        },
+        "policyMode": {
+            "value": "All"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                },
+                "allowedSkuNames": {
+                    "type": "Array",
+                    "metadata": {
+                        "displayName": "Allowed SKU Names",
+                        "description": "Specifies the allowed sku names"
+                    },
+                    "defaultValue": [
+                        "Basic",
+                        "Standard",
+                        "Premium"
+                    ]
+                },
+                "allowedSkuFamilies": {
+                    "type": "Array",
+                    "metadata": {
+                        "displayName": "Allowed SKU Families",
+                        "description": "Specifies the allowed sku families"
+                    },
+                    "defaultValue": [
+                        "C",
+                        "P"
+                    ]
+                },
+                "allowedSkuCapacities": {
+                    "type": "Array",
+                    "metadata": {
+                        "displayName": "Allowed SKU Capacities",
+                        "description": "Specifies the allowed sku capacities"
+                    },
+                    "defaultValue": [
+                        "C",
+                        "P"
+                    ]
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Cache/Redis"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.Cache/Redis/sku.name",
+                                    "notIn": "[parameters('allowedSkuNames')]"
+                                },
+                                {
+                                    "field": "Microsoft.Cache/Redis/sku.family",
+                                    "notIn": "[parameters('allowedSkuFamilies')]"
+                                },
+                                {
+                                    "field": "Microsoft.Cache/Redis/sku.capacity",
+                                    "notIn": "[parameters('allowedSkuCapacities')]"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "Cache",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

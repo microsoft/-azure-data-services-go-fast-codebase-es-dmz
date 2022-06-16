@@ -1,0 +1,79 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-HdInsight-NetworkProperties"
+        },
+        "policyDescription": {
+            "value": "Enforces private link enablement for hd insight clusters."
+        },
+        "policyMode": {
+            "value": "Indexed"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.HDInsight/clusters"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.HDInsight/clusters/networkProperties",
+                                    "exists": false
+                                },
+                                {
+                                    "field": "Microsoft.HDInsight/clusters/networkProperties.resourceProviderConnection",
+                                    "exists": false
+                                },
+                                {
+                                    "field": "Microsoft.HDInsight/clusters/networkProperties.resourceProviderConnection",
+                                    "notEquals": "Outbound"
+                                },
+                                {
+                                    "field": "Microsoft.HDInsight/clusters/networkProperties.privateLink",
+                                    "exists": false
+                                },
+                                {
+                                    "field": "Microsoft.HDInsight/clusters/networkProperties.privateLink",
+                                    "notEquals": "Enabled"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "HDInsight",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

@@ -1,0 +1,67 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "policyName": {
+            "value": "Deny-Cache-PublicNetworkAccess"
+        },
+        "policyDescription": {
+            "value": "Enforces no public network access for redis cache."
+        },
+        "policyMode": {
+            "value": "Indexed"
+        },
+        "policyParameters": {
+            "value": {
+                "effect": {
+                    "type": "String",
+                    "metadata": {
+                        "displayName": "Effect",
+                        "description": "Enable or disable the execution of the policy"
+                    },
+                    "allowedValues": [
+                        "Audit",
+                        "Disabled",
+                        "Deny"
+                    ],
+                    "defaultValue": "Deny"
+                }
+            }
+        },
+        "policyDefinition": {
+            "value": {
+                "if": {
+                    "allOf": [
+                        {
+                            "field": "type",
+                            "equals": "Microsoft.Cache/Redis"
+                        },
+                        {
+                            "anyOf": [
+                                {
+                                    "field": "Microsoft.Cache/Redis/publicNetworkAccess",
+                                    "exists": false
+                                },
+                                {
+                                    "field": "Microsoft.Cache/Redis/publicNetworkAccess",
+                                    "notEquals": "Disabled"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "then": {
+                    "effect": "[parameters('effect')]"
+                }
+            }
+        },
+        "policyMetadata": {
+            "value": {
+                "version": "1.0.0",
+                "category": "Cache",
+                "preview": false,
+                "deprecated": false
+            }
+        }
+    }
+}

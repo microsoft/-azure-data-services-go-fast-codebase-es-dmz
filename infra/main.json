@@ -1,0 +1,3736 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1124.51302",
+      "templateHash": "12904071157118301552"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the location for all resources."
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Specifies the environment of the deployment."
+      },
+      "allowedValues": [
+        "dev",
+        "tst",
+        "prd"
+      ]
+    },
+    "prefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the prefix for all resources created in this deployment."
+      },
+      "maxLength": 10,
+      "minLength": 2
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Specifies the tags that you want to apply to all resources."
+      }
+    },
+    "purviewRootCollectionAdminObjectIds": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Specifies the list of user object IDs that are assigned as collection admin to the root collection in Purview."
+      }
+    },
+    "enableDnsAndFirewallDeployment": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Specifies whether firewall and private DNS Zones should be deployed."
+      }
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "Specifies the address space of the vnet."
+      }
+    },
+    "azureFirewallSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "Specifies the address space of the subnet that is use for Azure Firewall. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "servicesSubnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Specifies the address space of the subnet that is used for the services."
+      }
+    },
+    "firewallPrivateIp": {
+      "type": "string",
+      "defaultValue": "10.0.0.4",
+      "metadata": {
+        "description": "Specifies the private IP address of the central firewall. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "dnsServerAdresses": {
+      "type": "array",
+      "defaultValue": [
+        "10.0.0.4"
+      ],
+      "metadata": {
+        "description": "Specifies the private IP addresses of the dns servers. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "firewallTier": {
+      "type": "string",
+      "defaultValue": "Premium",
+      "metadata": {
+        "description": "Specifies the tier of the Azure Firewall.  Optional if `enableDnsAndFirewallDeployment` is set to `false`."
+      },
+      "allowedValues": [
+        "Standard",
+        "Premium"
+      ]
+    },
+    "firewallPolicyId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the Azure Firewall Policy. Optional parameter allows you to deploy Firewall rules to an existing Firewall Policy if `enableDnsAndFirewallDeployment` is set to `false`."
+      }
+    },
+    "privateDnsZoneIdKeyVault": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for Key Vault. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "privateDnsZoneIdPurview": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for Purview. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "privateDnsZoneIdPurviewPortal": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for Purview Portal. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "privateDnsZoneIdQueue": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for Queue storage. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "privateDnsZoneIdBlob": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for Blob storage. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "privateDnsZoneIdNamespace": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for EventHub namespaces. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "privateDnsZoneIdContainerRegistry": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for Container Registry. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    },
+    "privateDnsZoneIdSynapse": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specifies the resource ID of the private DNS zone for Synapse. Optional if `enableDnsAndFirewallDeployment` is set to `true`."
+      }
+    }
+  },
+  "variables": {
+    "name": "[toLower(format('{0}-{1}', parameters('prefix'), parameters('environment')))]",
+    "tagsDefault": {
+      "Owner": "Data Management and Analytics Scenario",
+      "Project": "Data Management and Analytics Scenario",
+      "Environment": "[parameters('environment')]",
+      "Toolkit": "bicep",
+      "Name": "[variables('name')]"
+    },
+    "tagsJoined": "[union(variables('tagsDefault'), parameters('tags'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-network', variables('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tagsJoined')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-global-dns', variables('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tagsJoined')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-governance', variables('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tagsJoined')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-container', variables('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tagsJoined')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-consumption', variables('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tagsJoined')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-automation', variables('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tagsJoined')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-mgmt', variables('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tagsJoined')]",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "networkServices",
+      "resourceGroup": "[format('{0}-network', variables('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "prefix": {
+            "value": "[variables('name')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[variables('tagsJoined')]"
+          },
+          "vnetAddressPrefix": {
+            "value": "[parameters('vnetAddressPrefix')]"
+          },
+          "azureFirewallSubnetAddressPrefix": {
+            "value": "[parameters('azureFirewallSubnetAddressPrefix')]"
+          },
+          "servicesSubnetAddressPrefix": {
+            "value": "[parameters('servicesSubnetAddressPrefix')]"
+          },
+          "dnsServerAdresses": {
+            "value": "[parameters('dnsServerAdresses')]"
+          },
+          "enableDnsAndFirewallDeployment": {
+            "value": "[parameters('enableDnsAndFirewallDeployment')]"
+          },
+          "firewallPrivateIp": {
+            "value": "[parameters('firewallPrivateIp')]"
+          },
+          "firewallTier": {
+            "value": "[parameters('firewallTier')]"
+          },
+          "firewallPolicyId": {
+            "value": "[parameters('firewallPolicyId')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "7004950783398778434"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "firewallPrivateIp": {
+              "type": "string",
+              "defaultValue": "10.0.0.4"
+            },
+            "dnsServerAdresses": {
+              "type": "array",
+              "defaultValue": [
+                "10.0.0.4"
+              ]
+            },
+            "vnetAddressPrefix": {
+              "type": "string",
+              "defaultValue": "10.0.0.0/16"
+            },
+            "azureFirewallSubnetAddressPrefix": {
+              "type": "string",
+              "defaultValue": "10.0.0.0/24"
+            },
+            "servicesSubnetAddressPrefix": {
+              "type": "string",
+              "defaultValue": "10.0.1.0/24"
+            },
+            "enableDnsAndFirewallDeployment": {
+              "type": "bool",
+              "defaultValue": true
+            },
+            "firewallTier": {
+              "type": "string",
+              "defaultValue": "Premium",
+              "allowedValues": [
+                "Standard",
+                "Premium"
+              ]
+            },
+            "firewallPolicyId": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "azureFirewallSubnetName": "AzureFirewallSubnet",
+            "servicesSubnetName": "ServicesSubnet",
+            "firewallPolicySubscriptionId": "[if(greaterOrEquals(length(split(parameters('firewallPolicyId'), '/')), 9), split(parameters('firewallPolicyId'), '/')[2], subscription().subscriptionId)]",
+            "firewallPolicyResourceGroupName": "[if(greaterOrEquals(length(split(parameters('firewallPolicyId'), '/')), 9), split(parameters('firewallPolicyId'), '/')[4], resourceGroup().name)]",
+            "firewallPolicyName": "[if(greaterOrEquals(length(split(parameters('firewallPolicyId'), '/')), 9), last(split(parameters('firewallPolicyId'), '/')), 'incorrectSegmentLength')]",
+            "firewallPremiumRegions": [
+              "australiacentral",
+              "australiacentral2",
+              "australiaeast",
+              "australiasoutheast",
+              "brazilsouth",
+              "brazilsoutheast",
+              "canadacentral",
+              "canadaeast",
+              "centralindia",
+              "centralus",
+              "centraluseuap",
+              "chinanorth2",
+              "chinaeast2",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "francesouth",
+              "germanywestcentral",
+              "japaneast",
+              "japanwest",
+              "koreacentral",
+              "koreasouth",
+              "northcentralus",
+              "northeurope",
+              "norwayeast",
+              "southafricanorth",
+              "southcentralus",
+              "southindia",
+              "southeastasia",
+              "swedencentral",
+              "switzerlandnorth",
+              "uaecentral",
+              "uaenorth",
+              "uksouth",
+              "ukwest",
+              "usgovarizona",
+              "usgovtexas",
+              "usgovvirginia",
+              "westcentralus",
+              "westeurope",
+              "westindia",
+              "westus",
+              "westus2",
+              "westus3"
+            ],
+            "availabilityZoneRegions": [
+              "australiaeast",
+              "brazilsouth",
+              "canadacentral",
+              "centralus",
+              "centralindia",
+              "eastasia",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "germanywestcentral",
+              "japaneast",
+              "koreacentral",
+              "northeurope",
+              "norwayeast",
+              "uksouth",
+              "southeastasia",
+              "southcentralus",
+              "swedencentral",
+              "usgovvirginia",
+              "westeurope",
+              "westus2",
+              "westus3"
+            ],
+            "firewallPolicyPremiumProperties": {
+              "intrusionDetection": {
+                "mode": "Deny",
+                "configuration": {
+                  "bypassTrafficSettings": [],
+                  "signatureOverrides": []
+                }
+              },
+              "threatIntelMode": "Deny",
+              "threatIntelWhitelist": {
+                "fqdns": [],
+                "ipAddresses": []
+              },
+              "sku": {
+                "tier": "Premium"
+              },
+              "dnsSettings": {
+                "enableProxy": true,
+                "servers": []
+              }
+            },
+            "firewallPolicyStandardProperties": {
+              "threatIntelMode": "Deny",
+              "threatIntelWhitelist": {
+                "fqdns": [],
+                "ipAddresses": []
+              },
+              "sku": {
+                "tier": "Standard"
+              },
+              "dnsSettings": {
+                "enableProxy": true,
+                "servers": []
+              }
+            },
+            "generalSubnets": [
+              {
+                "name": "[variables('servicesSubnetName')]",
+                "properties": {
+                  "addressPrefix": "[parameters('servicesSubnetAddressPrefix')]",
+                  "addressPrefixes": [],
+                  "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-nsg', parameters('prefix')))]"
+                  },
+                  "routeTable": {
+                    "id": "[resourceId('Microsoft.Network/routeTables', format('{0}-routetable', parameters('prefix')))]"
+                  },
+                  "delegations": [],
+                  "privateEndpointNetworkPolicies": "Disabled",
+                  "privateLinkServiceNetworkPolicies": "Disabled",
+                  "serviceEndpointPolicies": [],
+                  "serviceEndpoints": []
+                }
+              }
+            ],
+            "azureFirewallSubnet": "[if(parameters('enableDnsAndFirewallDeployment'), createArray(createObject('name', variables('azureFirewallSubnetName'), 'properties', createObject('addressPrefix', parameters('azureFirewallSubnetAddressPrefix'), 'addressPrefixes', createArray(), 'delegations', createArray(), 'privateEndpointNetworkPolicies', 'Enabled', 'privateLinkServiceNetworkPolicies', 'Enabled', 'serviceEndpointPolicies', createArray(), 'serviceEndpoints', createArray()))), createArray())]",
+            "subnets": "[concat(variables('azureFirewallSubnet'), variables('generalSubnets'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2020-11-01",
+              "name": "[format('{0}-routetable', parameters('prefix'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": []
+              }
+            },
+            {
+              "type": "Microsoft.Network/routeTables/routes",
+              "apiVersion": "2020-11-01",
+              "name": "[format('{0}/{1}', format('{0}-routetable', parameters('prefix')), 'to-firewall-default')]",
+              "properties": {
+                "addressPrefix": "0.0.0.0/0",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "[if(parameters('enableDnsAndFirewallDeployment'), reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-firewall', parameters('prefix')))).ipConfigurations[0].properties.privateIPAddress, parameters('firewallPrivateIp'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/azureFirewalls', format('{0}-firewall', parameters('prefix')))]",
+                "[resourceId('Microsoft.Network/routeTables', format('{0}-routetable', parameters('prefix')))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2020-11-01",
+              "name": "[format('{0}-nsg', parameters('prefix'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "securityRules": []
+              }
+            },
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}-vnet', parameters('prefix'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('vnetAddressPrefix')]"
+                  ]
+                },
+                "dhcpOptions": {
+                  "dnsServers": "[if(parameters('enableDnsAndFirewallDeployment'), createArray(), parameters('dnsServerAdresses'))]"
+                },
+                "enableDdosProtection": false,
+                "subnets": "[variables('subnets')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', format('{0}-nsg', parameters('prefix')))]",
+                "[resourceId('Microsoft.Network/routeTables', format('{0}-routetable', parameters('prefix')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('enableDnsAndFirewallDeployment')]",
+              "type": "Microsoft.Network/publicIPPrefixes",
+              "apiVersion": "2020-11-01",
+              "name": "[format('{0}-publicipprefix', parameters('prefix'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+              },
+              "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "prefixLength": 30
+              }
+            },
+            {
+              "condition": "[parameters('enableDnsAndFirewallDeployment')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2020-11-01",
+              "name": "[format('{0}-publicip001', parameters('prefix'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+              },
+              "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "dnsSettings": {
+                  "domainNameLabel": "[format('{0}-publicip001', parameters('prefix'))]"
+                },
+                "publicIPPrefix": {
+                  "id": "[resourceId('Microsoft.Network/publicIPPrefixes', format('{0}-publicipprefix', parameters('prefix')))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPPrefixes', format('{0}-publicipprefix', parameters('prefix')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('enableDnsAndFirewallDeployment')]",
+              "type": "Microsoft.Network/firewallPolicies",
+              "apiVersion": "2021-05-01",
+              "name": "[format('{0}-firewallpolicy', parameters('prefix'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "properties": "[if(and(equals(parameters('firewallTier'), 'Premium'), contains(variables('firewallPremiumRegions'), parameters('location'))), variables('firewallPolicyPremiumProperties'), variables('firewallPolicyStandardProperties'))]"
+            },
+            {
+              "condition": "[parameters('enableDnsAndFirewallDeployment')]",
+              "type": "Microsoft.Network/azureFirewalls",
+              "apiVersion": "2020-11-01",
+              "name": "[format('{0}-firewall', parameters('prefix'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('tags')]",
+              "zones": "[if(contains(variables('availabilityZoneRegions'), parameters('location')), createArray('1', '2', '3'), createArray())]",
+              "properties": {
+                "sku": {
+                  "name": "AZFW_VNet",
+                  "tier": "[if(contains(variables('firewallPremiumRegions'), parameters('location')), parameters('firewallTier'), 'Standard')]"
+                },
+                "ipConfigurations": [
+                  {
+                    "name": "ipConfiguration001",
+                    "properties": {
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-publicip001', parameters('prefix')))]"
+                      },
+                      "subnet": {
+                        "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('{0}-vnet', parameters('prefix')))).subnets[0].id]"
+                      }
+                    }
+                  }
+                ],
+                "firewallPolicy": {
+                  "id": "[resourceId('Microsoft.Network/firewallPolicies', format('{0}-firewallpolicy', parameters('prefix')))]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', format('{0}-firewallpolicy', parameters('prefix')))]",
+                "[resourceId('Microsoft.Resources/deployments', format('{0}-firewallpolicy-rules', parameters('prefix')))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-publicip001', parameters('prefix')))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-vnet', parameters('prefix')))]"
+              ]
+            },
+            {
+              "condition": "[parameters('enableDnsAndFirewallDeployment')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('{0}-firewallpolicy-rules', parameters('prefix'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "firewallPolicyName": {
+                    "value": "[format('{0}-firewallpolicy', parameters('prefix'))]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "14459821225494404282"
+                    }
+                  },
+                  "parameters": {
+                    "firewallPolicyName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/networkrules-rulecollection', parameters('firewallPolicyName'))]",
+                      "properties": {
+                        "priority": 10000,
+                        "ruleCollections": [
+                          {
+                            "name": "MachineLearning-NetworkRules",
+                            "priority": 10100,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "MachineLearning-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureActiveDirectory",
+                                  "AzureMachineLearning",
+                                  "AzureResourceManager",
+                                  "Storage",
+                                  "AzureKeyVault",
+                                  "AzureContainerRegistry",
+                                  "MicrosoftContainerRegistry",
+                                  "AzureFrontDoor.FirstParty"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "*"
+                                ],
+                                "description": "Allow outbound access to required services"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "HDInsight-NetworkRules",
+                            "priority": 10200,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "HDInsight-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "Sql"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "1433"
+                                ],
+                                "description": "Allow default SQL servers provided by HDInsight"
+                              },
+                              {
+                                "name": "HDInsight-NetworkRule-002",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureMonitor"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "*"
+                                ],
+                                "description": "Allows scale feature of HDInsight"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Databricks-NetworkRules",
+                            "priority": 10300,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Databricks-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureActiveDirectory",
+                                  "AzureFrontDoor.Frontend"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "443"
+                                ],
+                                "description": "Allow OAuth flow for the User to the Workspace Private Endpoint and features like Mount Points, Credential Passthrough, etc."
+                              },
+                              {
+                                "name": "Databricks-NetworkRule-002",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureDatabricks",
+                                  "Storage"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "443"
+                                ],
+                                "description": "Required for workers communication with Azure Storage services and Databricks Webapp"
+                              },
+                              {
+                                "name": "Databricks-NetworkRule-003",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "Sql"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "3306"
+                                ],
+                                "description": "Required for workers communication with Azure SQL services"
+                              },
+                              {
+                                "name": "Databricks-NetworkRule-004",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "EventHub"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "9093"
+                                ],
+                                "description": "Required for workers communication with Azure Eventhub services"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Azure-NetworkRules",
+                            "priority": 10400,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Azure-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "23.102.135.246",
+                                  "51.4.143.248",
+                                  "23.97.0.13",
+                                  "42.159.7.249"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "1688"
+                                ],
+                                "description": "Allow Windows Activation in Azure through Azure KMS Service"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "AzureDevOps-NetworkRules",
+                            "priority": 10500,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "AzureDevOps-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "13.107.6.0/24",
+                                  "13.107.9.0/24",
+                                  "13.107.42.0/24",
+                                  "13.107.43.0/24"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "443"
+                                ],
+                                "description": "Allow Self-hosted DevOps Agents to poll for pending jobs"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/applicationrules-rulecollection', parameters('firewallPolicyName'))]",
+                      "properties": {
+                        "priority": 20000,
+                        "ruleCollections": [
+                          {
+                            "name": "MachineLearning-ApplicationRules",
+                            "priority": 20100,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "MachineLearning-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "anaconda.com",
+                                  "*.anaconda.com",
+                                  "*.anaconda.org",
+                                  "pypi.org",
+                                  "cloud.r-project.org",
+                                  "*pytorch.org",
+                                  "*.tensorflow.org",
+                                  "update.code.visualstudio.com",
+                                  "*.vo.msecnd.net",
+                                  "*.instances.azureml.net",
+                                  "*.instances.azureml.ms"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "MachineLearning allow common FQDNs"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "HDInsight-ApplicationRules",
+                            "priority": 20200,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "HDInsight-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [
+                                  "HDInsight",
+                                  "WindowsUpdate"
+                                ],
+                                "targetFqdns": [],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "HDInsight Service Tag Rule"
+                              },
+                              {
+                                "name": "HDInsight-ApplicationRule-002",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "login.microsoftonline.com",
+                                  "login.windows.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows Windows login activity"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "DataFactory-ApplicationRules",
+                            "priority": 20300,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "DataFactory-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "go.microsoft.com",
+                                  "download.microsoft.com",
+                                  "browser.events.data.msn.com",
+                                  "*.clouddatahub.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows download of Self-hosted Integration Runtime installer and updates"
+                              },
+                              {
+                                "name": "DataFactory-ApplicationRule-002",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*.servicebus.windows.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows interactive authoring and logging with Self-hosted Integration Runtime and Azure SSIS"
+                              },
+                              {
+                                "name": "DataFactory-ApplicationRule-003",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*.githubusercontent.com"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows download of SHIR install script from GitHub"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Databricks-ApplicationRules",
+                            "priority": 20400,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Databricks-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "tunnel.australiaeast.azuredatabricks.net",
+                                  "tunnel.brazilsouth.azuredatabricks.net",
+                                  "tunnel.canadacentral.azuredatabricks.net",
+                                  "tunnel.centralindia.azuredatabricks.net",
+                                  "tunnel.eastus2.azuredatabricks.net",
+                                  "tunnel.eastus2c2.azuredatabricks.net",
+                                  "tunnel.eastusc3.azuredatabricks.net",
+                                  "tunnel.centralusc2.azuredatabricks.net",
+                                  "tunnel.northcentralusc2.azuredatabricks.net",
+                                  "tunnel.southeastasia.azuredatabricks.net",
+                                  "tunnel.francecentral.azuredatabricks.net",
+                                  "tunnel.japaneast.azuredatabricks.net",
+                                  "tunnel.koreacentral.azuredatabricks.net",
+                                  "tunnel.northeuropec2.azuredatabricks.net",
+                                  "tunnel.westus.azuredatabricks.net",
+                                  "tunnel.westeurope.azuredatabricks.net",
+                                  "tunnel.westeuropec2.azuredatabricks.net",
+                                  "tunnel.southafricanorth.azuredatabricks.net",
+                                  "tunnel.switzerlandnorth.azuredatabricks.net",
+                                  "tunnel.uaenorth.azuredatabricks.net",
+                                  "tunnel.ukwest.azuredatabricks.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows Secure Cluster Connectivity option"
+                              },
+                              {
+                                "name": "Databricks-ApplicationRule-002",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "archive.ubuntu.com",
+                                  "github.com",
+                                  "*.maven.apache.org",
+                                  "conjars.org"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows Databricks Setup Notebook to run successfully"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Azure-ApplicationRules",
+                            "priority": 20500,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Azure-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*microsoft.com",
+                                  "*azure.com",
+                                  "*windows.com",
+                                  "*windows.net",
+                                  "*azure-automation.net",
+                                  "*digicert.com"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows communication with Azure and Microsoft for Logging and Metrics as well as other services"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "AzureDevOps-ApplicationRules",
+                            "priority": 20600,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "AzureDevOps-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*snapcraft.io",
+                                  "vstsagentpackage.azureedge.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows installation of Visual Studio DevOps Agent extension"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', split(format('{0}/networkrules-rulecollection', parameters('firewallPolicyName')), '/')[0], split(format('{0}/networkrules-rulecollection', parameters('firewallPolicyName')), '/')[1])]"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/firewallPolicies', format('{0}-firewallpolicy', parameters('prefix')))]"
+              ]
+            },
+            {
+              "condition": "[and(not(parameters('enableDnsAndFirewallDeployment')), not(empty(parameters('firewallPolicyId'))))]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('{0}-firewallpolicy-rules-toExistingFirewallPolicy', parameters('prefix'))]",
+              "subscriptionId": "[variables('firewallPolicySubscriptionId')]",
+              "resourceGroup": "[variables('firewallPolicyResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "firewallPolicyName": {
+                    "value": "[variables('firewallPolicyName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "14459821225494404282"
+                    }
+                  },
+                  "parameters": {
+                    "firewallPolicyName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/networkrules-rulecollection', parameters('firewallPolicyName'))]",
+                      "properties": {
+                        "priority": 10000,
+                        "ruleCollections": [
+                          {
+                            "name": "MachineLearning-NetworkRules",
+                            "priority": 10100,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "MachineLearning-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureActiveDirectory",
+                                  "AzureMachineLearning",
+                                  "AzureResourceManager",
+                                  "Storage",
+                                  "AzureKeyVault",
+                                  "AzureContainerRegistry",
+                                  "MicrosoftContainerRegistry",
+                                  "AzureFrontDoor.FirstParty"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "*"
+                                ],
+                                "description": "Allow outbound access to required services"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "HDInsight-NetworkRules",
+                            "priority": 10200,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "HDInsight-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "Sql"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "1433"
+                                ],
+                                "description": "Allow default SQL servers provided by HDInsight"
+                              },
+                              {
+                                "name": "HDInsight-NetworkRule-002",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureMonitor"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "*"
+                                ],
+                                "description": "Allows scale feature of HDInsight"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Databricks-NetworkRules",
+                            "priority": 10300,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Databricks-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureActiveDirectory",
+                                  "AzureFrontDoor.Frontend"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "443"
+                                ],
+                                "description": "Allow OAuth flow for the User to the Workspace Private Endpoint and features like Mount Points, Credential Passthrough, etc."
+                              },
+                              {
+                                "name": "Databricks-NetworkRule-002",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "AzureDatabricks",
+                                  "Storage"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "443"
+                                ],
+                                "description": "Required for workers communication with Azure Storage services and Databricks Webapp"
+                              },
+                              {
+                                "name": "Databricks-NetworkRule-003",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "Sql"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "3306"
+                                ],
+                                "description": "Required for workers communication with Azure SQL services"
+                              },
+                              {
+                                "name": "Databricks-NetworkRule-004",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "EventHub"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "9093"
+                                ],
+                                "description": "Required for workers communication with Azure Eventhub services"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Azure-NetworkRules",
+                            "priority": 10400,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Azure-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "23.102.135.246",
+                                  "51.4.143.248",
+                                  "23.97.0.13",
+                                  "42.159.7.249"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "1688"
+                                ],
+                                "description": "Allow Windows Activation in Azure through Azure KMS Service"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "AzureDevOps-NetworkRules",
+                            "priority": 10500,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "AzureDevOps-NetworkRule-001",
+                                "ruleType": "NetworkRule",
+                                "ipProtocols": [
+                                  "TCP"
+                                ],
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "sourceIpGroups": [],
+                                "destinationAddresses": [
+                                  "13.107.6.0/24",
+                                  "13.107.9.0/24",
+                                  "13.107.42.0/24",
+                                  "13.107.43.0/24"
+                                ],
+                                "destinationIpGroups": [],
+                                "destinationFqdns": [],
+                                "destinationPorts": [
+                                  "443"
+                                ],
+                                "description": "Allow Self-hosted DevOps Agents to poll for pending jobs"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/applicationrules-rulecollection', parameters('firewallPolicyName'))]",
+                      "properties": {
+                        "priority": 20000,
+                        "ruleCollections": [
+                          {
+                            "name": "MachineLearning-ApplicationRules",
+                            "priority": 20100,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "MachineLearning-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "anaconda.com",
+                                  "*.anaconda.com",
+                                  "*.anaconda.org",
+                                  "pypi.org",
+                                  "cloud.r-project.org",
+                                  "*pytorch.org",
+                                  "*.tensorflow.org",
+                                  "update.code.visualstudio.com",
+                                  "*.vo.msecnd.net",
+                                  "*.instances.azureml.net",
+                                  "*.instances.azureml.ms"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "MachineLearning allow common FQDNs"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "HDInsight-ApplicationRules",
+                            "priority": 20200,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "HDInsight-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [
+                                  "HDInsight",
+                                  "WindowsUpdate"
+                                ],
+                                "targetFqdns": [],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "HDInsight Service Tag Rule"
+                              },
+                              {
+                                "name": "HDInsight-ApplicationRule-002",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "login.microsoftonline.com",
+                                  "login.windows.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows Windows login activity"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "DataFactory-ApplicationRules",
+                            "priority": 20300,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "DataFactory-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "go.microsoft.com",
+                                  "download.microsoft.com",
+                                  "browser.events.data.msn.com",
+                                  "*.clouddatahub.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows download of Self-hosted Integration Runtime installer and updates"
+                              },
+                              {
+                                "name": "DataFactory-ApplicationRule-002",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*.servicebus.windows.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows interactive authoring and logging with Self-hosted Integration Runtime and Azure SSIS"
+                              },
+                              {
+                                "name": "DataFactory-ApplicationRule-003",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*.githubusercontent.com"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows download of SHIR install script from GitHub"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Databricks-ApplicationRules",
+                            "priority": 20400,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Databricks-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "tunnel.australiaeast.azuredatabricks.net",
+                                  "tunnel.brazilsouth.azuredatabricks.net",
+                                  "tunnel.canadacentral.azuredatabricks.net",
+                                  "tunnel.centralindia.azuredatabricks.net",
+                                  "tunnel.eastus2.azuredatabricks.net",
+                                  "tunnel.eastus2c2.azuredatabricks.net",
+                                  "tunnel.eastusc3.azuredatabricks.net",
+                                  "tunnel.centralusc2.azuredatabricks.net",
+                                  "tunnel.northcentralusc2.azuredatabricks.net",
+                                  "tunnel.southeastasia.azuredatabricks.net",
+                                  "tunnel.francecentral.azuredatabricks.net",
+                                  "tunnel.japaneast.azuredatabricks.net",
+                                  "tunnel.koreacentral.azuredatabricks.net",
+                                  "tunnel.northeuropec2.azuredatabricks.net",
+                                  "tunnel.westus.azuredatabricks.net",
+                                  "tunnel.westeurope.azuredatabricks.net",
+                                  "tunnel.westeuropec2.azuredatabricks.net",
+                                  "tunnel.southafricanorth.azuredatabricks.net",
+                                  "tunnel.switzerlandnorth.azuredatabricks.net",
+                                  "tunnel.uaenorth.azuredatabricks.net",
+                                  "tunnel.ukwest.azuredatabricks.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows Secure Cluster Connectivity option"
+                              },
+                              {
+                                "name": "Databricks-ApplicationRule-002",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "archive.ubuntu.com",
+                                  "github.com",
+                                  "*.maven.apache.org",
+                                  "conjars.org"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows Databricks Setup Notebook to run successfully"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "Azure-ApplicationRules",
+                            "priority": 20500,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "Azure-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Http",
+                                    "port": 80
+                                  },
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*microsoft.com",
+                                  "*azure.com",
+                                  "*windows.com",
+                                  "*windows.net",
+                                  "*azure-automation.net",
+                                  "*digicert.com"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows communication with Azure and Microsoft for Logging and Metrics as well as other services"
+                              }
+                            ]
+                          },
+                          {
+                            "name": "AzureDevOps-ApplicationRules",
+                            "priority": 20600,
+                            "action": {
+                              "type": "Allow"
+                            },
+                            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+                            "rules": [
+                              {
+                                "name": "AzureDevOps-ApplicationRule-001",
+                                "ruleType": "ApplicationRule",
+                                "protocols": [
+                                  {
+                                    "protocolType": "Https",
+                                    "port": 443
+                                  }
+                                ],
+                                "fqdnTags": [],
+                                "targetFqdns": [
+                                  "*snapcraft.io",
+                                  "vstsagentpackage.azureedge.net"
+                                ],
+                                "targetUrls": [],
+                                "terminateTLS": false,
+                                "sourceAddresses": [
+                                  "*"
+                                ],
+                                "destinationAddresses": [],
+                                "sourceIpGroups": [],
+                                "description": "Allows installation of Visual Studio DevOps Agent extension"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/firewallPolicies/ruleCollectionGroups', split(format('{0}/networkrules-rulecollection', parameters('firewallPolicyName')), '/')[0], split(format('{0}/networkrules-rulecollection', parameters('firewallPolicyName')), '/')[1])]"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-vnet', parameters('prefix')))]"
+            },
+            "serviceSubnet": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', format('{0}-vnet', parameters('prefix')))).subnets[0].id]"
+            },
+            "firewallPrivateIp": {
+              "type": "string",
+              "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-firewall', parameters('prefix')))).ipConfigurations[0].properties.privateIPAddress, parameters('firewallPrivateIp'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-network', variables('name')))]"
+      ]
+    },
+    {
+      "condition": "[parameters('enableDnsAndFirewallDeployment')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "globalDnsZones",
+      "resourceGroup": "[format('{0}-global-dns', variables('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "tags": {
+            "value": "[variables('tagsJoined')]"
+          },
+          "vnetId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices'), '2020-10-01').outputs.vnetId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "7745049360156901819"
+            }
+          },
+          "parameters": {
+            "vnetId": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            }
+          },
+          "variables": {
+            "vnetName": "[if(greaterOrEquals(length(split(parameters('vnetId'), '/')), 9), last(split(parameters('vnetId'), '/')), 'incorrectSegmentLength')]",
+            "privateDnsZoneNames": [
+              "privatelink.afs.azure.net",
+              "privatelink.analysis.windows.net",
+              "privatelink.api.azureml.ms",
+              "privatelink.azure-automation.net",
+              "privatelink.azure-devices.net",
+              "privatelink.adf.azure.com",
+              "privatelink.azurecr.io",
+              "privatelink.azuredatabricks.net",
+              "privatelink.azuresynapse.net",
+              "privatelink.azurewebsites.net",
+              "[format('privatelink.blob.{0}', environment().suffixes.storage)]",
+              "privatelink.cassandra.cosmos.azure.com",
+              "privatelink.cognitiveservices.azure.com",
+              "[format('privatelink{0}', environment().suffixes.sqlServerHostname)]",
+              "privatelink.datafactory.azure.net",
+              "privatelink.dev.azuresynapse.net",
+              "[format('privatelink.dfs.{0}', environment().suffixes.storage)]",
+              "privatelink.documents.azure.com",
+              "privatelink.eventgrid.azure.net",
+              "[format('privatelink.file.{0}', environment().suffixes.storage)]",
+              "privatelink.gremlin.cosmos.azure.com",
+              "privatelink.mariadb.database.azure.com",
+              "privatelink.mongo.cosmos.azure.com",
+              "privatelink.mysql.database.azure.com",
+              "privatelink.notebooks.azure.net",
+              "privatelink.pbidedicated.windows.net",
+              "privatelink.postgres.database.azure.com",
+              "privatelink.purview.azure.com",
+              "privatelink.purviewstudio.azure.com",
+              "[format('privatelink.queue.{0}', environment().suffixes.storage)]",
+              "privatelink.redis.cache.windows.net",
+              "privatelink.search.windows.net",
+              "privatelink.service.signalr.net",
+              "privatelink.servicebus.windows.net",
+              "privatelink.sql.azuresynapse.net",
+              "[format('privatelink.table.{0}', environment().suffixes.storage)]",
+              "privatelink.table.cosmos.azure.com",
+              "privatelink.prod.powerquery.microsoft.com",
+              "privatelink.vaultcore.azure.net",
+              "[format('privatelink.web.{0}', environment().suffixes.storage)]",
+              "privatelink.northeurope.azmk8s.io",
+              "privatelink.westeurope.azmk8s.io",
+              "privatelink.northeurope.batch.azure.com",
+              "privatelink.westeurope.batch.azure.com",
+              "northeurope.privatelink.redisenterprise.cache.azure.net",
+              "westeurope.privatelink.redisenterprise.cache.azure.net"
+            ]
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "privateDnsZones",
+                "count": "[length(variables('privateDnsZoneNames'))]"
+              },
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "[variables('privateDnsZoneNames')[copyIndex()]]",
+              "location": "global",
+              "tags": "[parameters('tags')]",
+              "properties": {}
+            },
+            {
+              "copy": {
+                "name": "virtualNetworkLinks",
+                "count": "[length(variables('privateDnsZoneNames'))]"
+              },
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', variables('privateDnsZoneNames')[copyIndex()], variables('vnetName'))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[parameters('vnetId')]"
+                }
+              },
+              "dependsOn": [
+                "privateDnsZones"
+              ]
+            }
+          ],
+          "outputs": {
+            "privateDnsZoneIdFileSync": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.afs.azure.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdMachineLearningApi": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.api.azureml.ms', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdMachineLearningNotebooks": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.notebooks.azure.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdAutomation": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.azure-automation.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdIothub": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.azure-devices.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdDataFactory": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.datafactory.azure.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdDataFactoryPortal": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.adf.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdAppService": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.azurewebsites.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdCosmosdbCassandra": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.cassandra.cosmos.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdCosmosdbSql": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.documents.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdCosmosdbGremlin": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.gremlin.cosmos.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdCosmosdbMongo": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.mongo.cosmos.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdCosmosdbTable": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.table.cosmos.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdCognitiveService": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.cognitiveservices.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdSqlServer": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink{1}', resourceGroup().id, environment().suffixes.sqlServerHostname)]"
+            },
+            "privateDnsZoneIdMySqlServer": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.mysql.database.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdMariaDb": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.mariadb.database.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdPostgreSql": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.postgres.database.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdRedis": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.redis.cache.windows.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdSearch": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.search.windows.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdSignalr": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.service.signalr.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdEventGrid": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.eventgrid.azure.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdPurview": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.purview.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdPurviewPortal": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.purviewstudio.azure.com', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdDfs": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.dfs.{1}', resourceGroup().id, environment().suffixes.storage)]"
+            },
+            "privateDnsZoneIdBlob": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.blob.{1}', resourceGroup().id, environment().suffixes.storage)]"
+            },
+            "privateDnsZoneIdFile": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.file.{1}', resourceGroup().id, environment().suffixes.storage)]"
+            },
+            "privateDnsZoneIdQueue": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.queue.{1}', resourceGroup().id, environment().suffixes.storage)]"
+            },
+            "privateDnsZoneIdWeb": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.web.{1}', resourceGroup().id, environment().suffixes.storage)]"
+            },
+            "privateDnsZoneIdNamespace": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdKeyVault": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdContainerRegistry": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.azurecr.io', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdSynapse": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.azuresynapse.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdSynapseDev": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.dev.azuresynapse.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdSynapseSql": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.sql.azuresynapse.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdAnalysis": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.analysis.windows.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdPbiDedicated": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.pbidedicated.windows.net', resourceGroup().id)]"
+            },
+            "privateDnsZoneIdPowerQuery": {
+              "type": "string",
+              "value": "[format('{0}/providers/Microsoft.Network/privateDnsZones/privatelink.prod.powerquery.microsoft.com', resourceGroup().id)]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-global-dns', variables('name')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "governanceResources",
+      "resourceGroup": "[format('{0}-governance', variables('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "prefix": {
+            "value": "[variables('name')]"
+          },
+          "tags": {
+            "value": "[variables('tagsJoined')]"
+          },
+          "subnetId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices'), '2020-10-01').outputs.serviceSubnet.value]"
+          },
+          "privateDnsZoneIdPurview": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdPurview.value, parameters('privateDnsZoneIdPurview'))]"
+          },
+          "privateDnsZoneIdPurviewPortal": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdPurviewPortal.value, parameters('privateDnsZoneIdPurviewPortal'))]"
+          },
+          "privateDnsZoneIdStorageBlob": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdBlob.value, parameters('privateDnsZoneIdBlob'))]"
+          },
+          "privateDnsZoneIdStorageQueue": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdQueue.value, parameters('privateDnsZoneIdQueue'))]"
+          },
+          "privateDnsZoneIdEventhubNamespace": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdNamespace.value, parameters('privateDnsZoneIdNamespace'))]"
+          },
+          "privateDnsZoneIdKeyVault": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdKeyVault.value, parameters('privateDnsZoneIdKeyVault'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "17451550666935843444"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "privateDnsZoneIdPurview": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdPurviewPortal": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdStorageBlob": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdStorageQueue": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdEventhubNamespace": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdKeyVault": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "purview001Name": "[format('{0}-purview001', parameters('prefix'))]",
+            "keyvault001Name": "[format('{0}-vault001', parameters('prefix'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "purview001",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "subnetId": {
+                    "value": "[parameters('subnetId')]"
+                  },
+                  "purviewName": {
+                    "value": "[variables('purview001Name')]"
+                  },
+                  "privateDnsZoneIdPurview": {
+                    "value": "[parameters('privateDnsZoneIdPurview')]"
+                  },
+                  "privateDnsZoneIdPurviewPortal": {
+                    "value": "[parameters('privateDnsZoneIdPurviewPortal')]"
+                  },
+                  "privateDnsZoneIdStorageBlob": {
+                    "value": "[parameters('privateDnsZoneIdStorageBlob')]"
+                  },
+                  "privateDnsZoneIdStorageQueue": {
+                    "value": "[parameters('privateDnsZoneIdStorageQueue')]"
+                  },
+                  "privateDnsZoneIdEventhubNamespace": {
+                    "value": "[parameters('privateDnsZoneIdEventhubNamespace')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "13613768322785013128"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "subnetId": {
+                      "type": "string"
+                    },
+                    "purviewName": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdPurview": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdPurviewPortal": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdStorageBlob": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdStorageQueue": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdEventhubNamespace": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "purviewPrivateEndpointNamePortal": "[format('{0}-portal-private-endpoint', parameters('purviewName'))]",
+                    "purviewPrivateEndpointNameAccount": "[format('{0}-account-private-endpoint', parameters('purviewName'))]",
+                    "purviewPrivateEndpointNameBlob": "[format('{0}-private-endpoint-blob', parameters('purviewName'))]",
+                    "purviewPrivateEndpointNameQueue": "[format('{0}-private-endpoint-queue', parameters('purviewName'))]",
+                    "purviewPrivateEndpointNameNamespace": "[format('{0}-private-endpoint-namespace', parameters('purviewName'))]",
+                    "purviewRegions": [
+                      "australiaeast",
+                      "brazilsouth",
+                      "canadacentral",
+                      "centralindia",
+                      "eastus",
+                      "eastus2",
+                      "francecentral",
+                      "northeurope",
+                      "southcentralus",
+                      "southeastasia",
+                      "uksouth",
+                      "westcentralus",
+                      "westeurope",
+                      "westus2"
+                    ]
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Purview/accounts",
+                      "apiVersion": "2021-07-01",
+                      "name": "[parameters('purviewName')]",
+                      "location": "[if(contains(variables('purviewRegions'), parameters('location')), parameters('location'), 'northeurope')]",
+                      "tags": "[parameters('tags')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "properties": {
+                        "cloudConnectors": {},
+                        "friendlyName": "[parameters('purviewName')]",
+                        "managedResourceGroupName": "[parameters('purviewName')]",
+                        "publicNetworkAccess": "Disabled"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('purviewPrivateEndpointNamePortal')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('purviewPrivateEndpointNamePortal')]",
+                            "properties": {
+                              "groupIds": [
+                                "portal"
+                              ],
+                              "privateLinkServiceId": "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdPurviewPortal')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('purviewPrivateEndpointNamePortal'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('purviewPrivateEndpointNamePortal'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdPurviewPortal')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('purviewPrivateEndpointNamePortal'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('purviewPrivateEndpointNameAccount')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('purviewPrivateEndpointNameAccount')]",
+                            "properties": {
+                              "groupIds": [
+                                "account"
+                              ],
+                              "privateLinkServiceId": "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdPurview')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('purviewPrivateEndpointNameAccount'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('purviewPrivateEndpointNameAccount'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdPurview')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('purviewPrivateEndpointNameAccount'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('purviewPrivateEndpointNameBlob')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('purviewPrivateEndpointNameBlob')]",
+                            "properties": {
+                              "groupIds": [
+                                "blob"
+                              ],
+                              "privateLinkServiceId": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewName'))).managedResources.storageAccount]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdStorageBlob')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('purviewPrivateEndpointNameBlob'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('purviewPrivateEndpointNameBlob'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdStorageBlob')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('purviewPrivateEndpointNameBlob'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('purviewPrivateEndpointNameQueue')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('purviewPrivateEndpointNameQueue')]",
+                            "properties": {
+                              "groupIds": [
+                                "queue"
+                              ],
+                              "privateLinkServiceId": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewName'))).managedResources.storageAccount]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdStorageQueue')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('purviewPrivateEndpointNameQueue'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('purviewPrivateEndpointNameQueue'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdStorageQueue')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('purviewPrivateEndpointNameQueue'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('purviewPrivateEndpointNameNamespace')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('purviewPrivateEndpointNameNamespace')]",
+                            "properties": {
+                              "groupIds": [
+                                "namespace"
+                              ],
+                              "privateLinkServiceId": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewName'))).managedResources.eventHubNamespace]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdEventhubNamespace')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('purviewPrivateEndpointNameNamespace'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('purviewPrivateEndpointNameNamespace'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdEventhubNamespace')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('purviewPrivateEndpointNameNamespace'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "purviewId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Purview/accounts', parameters('purviewName'))]"
+                    },
+                    "purviewManagedStorageId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewName'))).managedResources.storageAccount]"
+                    },
+                    "purviewManagedEventHubId": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Purview/accounts', parameters('purviewName'))).managedResources.eventHubNamespace]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "keyVault001",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "subnetId": {
+                    "value": "[parameters('subnetId')]"
+                  },
+                  "keyvaultName": {
+                    "value": "[variables('keyvault001Name')]"
+                  },
+                  "privateDnsZoneIdKeyVault": {
+                    "value": "[parameters('privateDnsZoneIdKeyVault')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "12660131753967436973"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "subnetId": {
+                      "type": "string"
+                    },
+                    "keyvaultName": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdKeyVault": {
+                      "type": "string",
+                      "defaultValue": ""
+                    }
+                  },
+                  "variables": {
+                    "keyVaultPrivateEndpointName": "[format('{0}-private-endpoint', parameters('keyvaultName'))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.KeyVault/vaults",
+                      "apiVersion": "2021-04-01-preview",
+                      "name": "[parameters('keyvaultName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "accessPolicies": [],
+                        "createMode": "default",
+                        "enabledForDeployment": false,
+                        "enabledForDiskEncryption": false,
+                        "enabledForTemplateDeployment": false,
+                        "enablePurgeProtection": true,
+                        "enableRbacAuthorization": true,
+                        "enableSoftDelete": true,
+                        "networkAcls": {
+                          "bypass": "AzureServices",
+                          "defaultAction": "Deny",
+                          "ipRules": [],
+                          "virtualNetworkRules": []
+                        },
+                        "sku": {
+                          "family": "A",
+                          "name": "standard"
+                        },
+                        "softDeleteRetentionInDays": 7,
+                        "tenantId": "[subscription().tenantId]"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('keyVaultPrivateEndpointName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('keyVaultPrivateEndpointName')]",
+                            "properties": {
+                              "groupIds": [
+                                "vault"
+                              ],
+                              "privateLinkServiceId": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyvaultName'))]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyvaultName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdKeyVault')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('keyVaultPrivateEndpointName'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('keyVaultPrivateEndpointName'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdKeyVault')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('keyVaultPrivateEndpointName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "keyvaultId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyvaultName'))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "purviewKeyVaultRoleAssignment",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "purviewId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'purview001'), '2020-10-01').outputs.purviewId.value]"
+                  },
+                  "keyVaultId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'keyVault001'), '2020-10-01').outputs.keyvaultId.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "11291074661216838287"
+                    }
+                  },
+                  "parameters": {
+                    "purviewId": {
+                      "type": "string"
+                    },
+                    "keyVaultId": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "keyVaultName": "[if(greaterOrEquals(length(split(parameters('keyVaultId'), '/')), 9), last(split(parameters('keyVaultId'), '/')), 'incorrectSegmentLength')]",
+                    "purviewSubscriptionId": "[if(greaterOrEquals(length(split(parameters('purviewId'), '/')), 9), split(parameters('purviewId'), '/')[2], subscription().subscriptionId)]",
+                    "purviewResourceGroupName": "[if(greaterOrEquals(length(split(parameters('purviewId'), '/')), 9), split(parameters('purviewId'), '/')[4], resourceGroup().name)]",
+                    "purviewName": "[if(greaterOrEquals(length(split(parameters('purviewId'), '/')), 9), last(split(parameters('purviewId'), '/')), 'incorrectSegmentLength')]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "scope": "[format('Microsoft.KeyVault/vaults/{0}', variables('keyVaultName'))]",
+                      "name": "[guid(uniqueString(resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName')), extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('purviewSubscriptionId'), variables('purviewResourceGroupName')), 'Microsoft.Purview/accounts', variables('purviewName'))))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')]",
+                        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('purviewSubscriptionId'), variables('purviewResourceGroupName')), 'Microsoft.Purview/accounts', variables('purviewName')), '2020-12-01-preview', 'full').identity.principalId]",
+                        "principalType": "ServicePrincipal"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'keyVault001')]",
+                "[resourceId('Microsoft.Resources/deployments', 'purview001')]"
+              ]
+            }
+          ],
+          "outputs": {
+            "purviewId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'purview001'), '2020-10-01').outputs.purviewId.value]"
+            },
+            "purviewManagedStorageId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'purview001'), '2020-10-01').outputs.purviewManagedStorageId.value]"
+            },
+            "purviewManagedEventHubId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', 'purview001'), '2020-10-01').outputs.purviewManagedEventHubId.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-governance', variables('name')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "containerResources",
+      "resourceGroup": "[format('{0}-container', variables('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "prefix": {
+            "value": "[variables('name')]"
+          },
+          "tags": {
+            "value": "[variables('tagsJoined')]"
+          },
+          "subnetId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices'), '2020-10-01').outputs.serviceSubnet.value]"
+          },
+          "privateDnsZoneIdContainerRegistry": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdContainerRegistry.value, parameters('privateDnsZoneIdContainerRegistry'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "405891751471543400"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "privateDnsZoneIdContainerRegistry": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "containerRegistry001Name": "[format('{0}-containerregistry001', parameters('prefix'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "containerRegistry001",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "subnetId": {
+                    "value": "[parameters('subnetId')]"
+                  },
+                  "containerRegistryName": {
+                    "value": "[variables('containerRegistry001Name')]"
+                  },
+                  "privateDnsZoneIdContainerRegistry": {
+                    "value": "[parameters('privateDnsZoneIdContainerRegistry')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "10570330895745200307"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "subnetId": {
+                      "type": "string"
+                    },
+                    "containerRegistryName": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdContainerRegistry": {
+                      "type": "string",
+                      "defaultValue": ""
+                    }
+                  },
+                  "variables": {
+                    "containerRegistryNameCleaned": "[replace(parameters('containerRegistryName'), '-', '')]",
+                    "containerRegistryPrivateEndpointName": "[format('{0}-private-endpoint', variables('containerRegistryNameCleaned'))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ContainerRegistry/registries",
+                      "apiVersion": "2020-11-01-preview",
+                      "name": "[variables('containerRegistryNameCleaned')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "identity": {
+                        "type": "SystemAssigned"
+                      },
+                      "sku": {
+                        "name": "Premium"
+                      },
+                      "properties": {
+                        "adminUserEnabled": false,
+                        "anonymousPullEnabled": true,
+                        "dataEndpointEnabled": false,
+                        "networkRuleBypassOptions": "None",
+                        "networkRuleSet": {
+                          "defaultAction": "Deny",
+                          "ipRules": [],
+                          "virtualNetworkRules": []
+                        },
+                        "policies": {
+                          "quarantinePolicy": {
+                            "status": "enabled"
+                          },
+                          "retentionPolicy": {
+                            "status": "enabled",
+                            "days": 7
+                          },
+                          "trustPolicy": {
+                            "status": "disabled",
+                            "type": "Notary"
+                          }
+                        },
+                        "publicNetworkAccess": "Disabled"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('containerRegistryPrivateEndpointName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('containerRegistryPrivateEndpointName')]",
+                            "properties": {
+                              "groupIds": [
+                                "registry"
+                              ],
+                              "privateLinkServiceId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('containerRegistryNameCleaned'))]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ContainerRegistry/registries', variables('containerRegistryNameCleaned'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdContainerRegistry')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('containerRegistryPrivateEndpointName'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('containerRegistryPrivateEndpointName'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdContainerRegistry')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('containerRegistryPrivateEndpointName'))]"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-container', variables('name')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "consumptionResources",
+      "resourceGroup": "[format('{0}-consumption', variables('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "prefix": {
+            "value": "[variables('name')]"
+          },
+          "tags": {
+            "value": "[variables('tagsJoined')]"
+          },
+          "subnetId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices'), '2020-10-01').outputs.serviceSubnet.value]"
+          },
+          "privateDnsZoneIdSynapseprivatelinkhub": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdSynapse.value, parameters('privateDnsZoneIdSynapse'))]"
+          },
+          "privateDnsZoneIdAnalysis": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdAnalysis.value, '')]"
+          },
+          "privateDnsZoneIdPbiDedicated": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdPbiDedicated.value, '')]"
+          },
+          "privateDnsZoneIdPowerQuery": {
+            "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdPowerQuery.value, '')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "14201920356500171973"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "privateDnsZoneIdSynapseprivatelinkhub": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdAnalysis": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdPbiDedicated": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "privateDnsZoneIdPowerQuery": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "variables": {
+            "synapsePrivatelinkHub001Name": "[format('{0}-synapseplhub001', parameters('prefix'))]",
+            "powerbiPrivateLink001Name": "[format('{0}-powerbipl001', parameters('prefix'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "synapsePrivateLinkHub001",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "subnetId": {
+                    "value": "[parameters('subnetId')]"
+                  },
+                  "synapsePrivatelinkHubName": {
+                    "value": "[variables('synapsePrivatelinkHub001Name')]"
+                  },
+                  "privateDnsZoneIdSynapseprivatelinkhub": {
+                    "value": "[parameters('privateDnsZoneIdSynapseprivatelinkhub')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "16240531194403531210"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "subnetId": {
+                      "type": "string"
+                    },
+                    "synapsePrivatelinkHubName": {
+                      "type": "string"
+                    },
+                    "privateDnsZoneIdSynapseprivatelinkhub": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "synapsePrivatelinkHubNameCleaned": "[replace(parameters('synapsePrivatelinkHubName'), '-', '')]",
+                    "synapsePrivatelinkHubPrivateEndpointName": "[format('{0}-private-endpoint', variables('synapsePrivatelinkHubNameCleaned'))]",
+                    "synapsePrivatelinkHubRegions": [
+                      "westus2",
+                      "eastus",
+                      "northeurope",
+                      "westeurope",
+                      "southeastasia",
+                      "australiaeast",
+                      "westcentralus",
+                      "southcentralus",
+                      "eastus2",
+                      "uksouth",
+                      "westus",
+                      "australiasoutheast",
+                      "eastasia",
+                      "brazilsouth",
+                      "centralus",
+                      "centralindia",
+                      "japaneast",
+                      "northcentralus",
+                      "canadacentral",
+                      "canadaeast",
+                      "koreacentral",
+                      "southafricanorth",
+                      "ukwest",
+                      "japanwest",
+                      "francecentral",
+                      "switzerlandnorth",
+                      "germanywestcentral",
+                      "norwayeast",
+                      "uaenorth",
+                      "westus3",
+                      "jioindiawest"
+                    ]
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Synapse/privateLinkHubs",
+                      "apiVersion": "2021-03-01",
+                      "name": "[variables('synapsePrivatelinkHubNameCleaned')]",
+                      "location": "[if(contains(variables('synapsePrivatelinkHubRegions'), parameters('location')), parameters('location'), 'northeurope')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {}
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints",
+                      "apiVersion": "2020-11-01",
+                      "name": "[variables('synapsePrivatelinkHubPrivateEndpointName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "properties": {
+                        "manualPrivateLinkServiceConnections": [],
+                        "privateLinkServiceConnections": [
+                          {
+                            "name": "[variables('synapsePrivatelinkHubPrivateEndpointName')]",
+                            "properties": {
+                              "groupIds": [
+                                "web"
+                              ],
+                              "privateLinkServiceId": "[resourceId('Microsoft.Synapse/privateLinkHubs', variables('synapsePrivatelinkHubNameCleaned'))]",
+                              "requestMessage": ""
+                            }
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[parameters('subnetId')]"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Synapse/privateLinkHubs', variables('synapsePrivatelinkHubNameCleaned'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('privateDnsZoneIdSynapseprivatelinkhub')))]",
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2020-11-01",
+                      "name": "[format('{0}/{1}', variables('synapsePrivatelinkHubPrivateEndpointName'), 'default')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('{0}-arecord', variables('synapsePrivatelinkHubPrivateEndpointName'))]",
+                            "properties": {
+                              "privateDnsZoneId": "[parameters('privateDnsZoneIdSynapseprivatelinkhub')]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', variables('synapsePrivatelinkHubPrivateEndpointName'))]"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-consumption', variables('name')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "automationResources",
+      "resourceGroup": "[format('{0}-automation', variables('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "tags": {
+            "value": "[variables('tagsJoined')]"
+          },
+          "prefix": {
+            "value": "[variables('name')]"
+          },
+          "purviewId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-governance', variables('name'))), 'Microsoft.Resources/deployments', 'governanceResources'), '2020-10-01').outputs.purviewId.value]"
+          },
+          "purviewRootCollectionAdminObjectIds": {
+            "value": "[parameters('purviewRootCollectionAdminObjectIds')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1124.51302",
+              "templateHash": "18084870413505134204"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "object"
+            },
+            "purviewId": {
+              "type": "string"
+            },
+            "purviewRootCollectionAdminObjectIds": {
+              "type": "array",
+              "defaultValue": []
+            }
+          },
+          "variables": {
+            "userAssignedIdentity001Name": "[format('{0}-uai001', parameters('prefix'))]",
+            "purviewSubscriptionId": "[if(greaterOrEquals(length(split(parameters('purviewId'), '/')), 9), split(parameters('purviewId'), '/')[2], subscription().subscriptionId)]",
+            "purviewResourceGroupName": "[if(greaterOrEquals(length(split(parameters('purviewId'), '/')), 9), split(parameters('purviewId'), '/')[4], resourceGroup().name)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "userAssignedIdentity001",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "userAssignedIdentityName": {
+                    "value": "[variables('userAssignedIdentity001Name')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "1773924684182957173"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "userAssignedIdentityName": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                      "apiVersion": "2018-11-30",
+                      "name": "[parameters('userAssignedIdentityName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]"
+                    }
+                  ],
+                  "outputs": {
+                    "userAssignedIdentityId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "userAssignedIdentity001RoleAssignmentPurview",
+              "subscriptionId": "[variables('purviewSubscriptionId')]",
+              "resourceGroup": "[variables('purviewResourceGroupName')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "userAssignedIdentityId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'userAssignedIdentity001'), '2020-10-01').outputs.userAssignedIdentityId.value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "15089794917938446955"
+                    }
+                  },
+                  "parameters": {
+                    "userAssignedIdentityId": {
+                      "type": "string"
+                    }
+                  },
+                  "variables": {
+                    "userAssignedIdentitySubscriptionId": "[if(greaterOrEquals(length(split(parameters('userAssignedIdentityId'), '/')), 9), split(parameters('userAssignedIdentityId'), '/')[2], subscription().subscriptionId)]",
+                    "userAssignedIdentityResourceGroupName": "[if(greaterOrEquals(length(split(parameters('userAssignedIdentityId'), '/')), 9), split(parameters('userAssignedIdentityId'), '/')[4], resourceGroup().name)]",
+                    "userAssignedIdentityName": "[if(greaterOrEquals(length(split(parameters('userAssignedIdentityId'), '/')), 9), last(split(parameters('userAssignedIdentityId'), '/')), 'incorrectSegmentLength')]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2020-04-01-preview",
+                      "name": "[guid(uniqueString(resourceGroup().id, extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('userAssignedIdentitySubscriptionId'), variables('userAssignedIdentityResourceGroupName')), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))))]",
+                      "properties": {
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+                        "principalId": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('userAssignedIdentitySubscriptionId'), variables('userAssignedIdentityResourceGroupName')), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
+                        "principalType": "ServicePrincipal"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'userAssignedIdentity001')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "purviewSetup",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "tags": {
+                    "value": "[parameters('tags')]"
+                  },
+                  "userAssignedIdentityId": {
+                    "value": "[reference(resourceId('Microsoft.Resources/deployments', 'userAssignedIdentity001'), '2020-10-01').outputs.userAssignedIdentityId.value]"
+                  },
+                  "purviewId": {
+                    "value": "[parameters('purviewId')]"
+                  },
+                  "purviewRootCollectionAdminObjectIds": {
+                    "value": "[parameters('purviewRootCollectionAdminObjectIds')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1124.51302",
+                      "templateHash": "7632760840318778244"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "type": "object"
+                    },
+                    "userAssignedIdentityId": {
+                      "type": "string"
+                    },
+                    "purviewId": {
+                      "type": "string"
+                    },
+                    "purviewRootCollectionAdminObjectIds": {
+                      "type": "array"
+                    },
+                    "forceUpdateTag": {
+                      "type": "string",
+                      "defaultValue": "[utcNow()]"
+                    }
+                  },
+                  "variables": {
+                    "purviewName": "[if(greaterOrEquals(length(split(parameters('purviewId'), '/')), 9), last(split(parameters('purviewId'), '/')), 'incorrectSegmentLength')]",
+                    "purviewSetupName": "[format('{0}-setup', variables('purviewName'))]",
+                    "purviewRootCollectionAdminsInput": "[replace(replace(string(parameters('purviewRootCollectionAdminObjectIds')), '[', ''), ']', '')]"
+                  },
+                  "resources": [
+                    {
+                      "condition": "[greater(length(parameters('purviewRootCollectionAdminObjectIds')), 0)]",
+                      "type": "Microsoft.Resources/deploymentScripts",
+                      "apiVersion": "2020-10-01",
+                      "name": "[variables('purviewSetupName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]",
+                      "kind": "AzurePowerShell",
+                      "identity": {
+                        "type": "UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('userAssignedIdentityId'))]": {}
+                        }
+                      },
+                      "properties": {
+                        "azPowerShellVersion": "6.3",
+                        "arguments": "[format('-PurviewId \\\"{0}\\\" -PurviewRootCollectionAdmins {1}', parameters('purviewId'), variables('purviewRootCollectionAdminsInput'))]",
+                        "cleanupPreference": "OnSuccess",
+                        "containerSettings": {
+                          "containerGroupName": "[variables('purviewSetupName')]"
+                        },
+                        "environmentVariables": [],
+                        "forceUpdateTag": "[parameters('forceUpdateTag')]",
+                        "scriptContent": "# Copyright (c) Microsoft Corporation.\r\n# Licensed under the MIT license.\r\n\r\n# Define script arguments\r\n[CmdletBinding()]\r\nparam (\r\n    [Parameter(Mandatory = $true)]\r\n    [ValidateNotNullOrEmpty()]\r\n    [string]\r\n    $PurviewId,\r\n\r\n    [Parameter(Mandatory = $false)]\r\n    [string[]]\r\n    $PurviewRootCollectionAdmins = @(),\r\n\r\n    [Parameter(Mandatory=$false)]\r\n    [Switch]\r\n    $SetPurviewAccountAsDefault\r\n)\r\n\r\n# Install Required Module\r\nWrite-Output \"Installing Required Module\"\r\nSet-PSRepository `\r\n    -Name PSGallery `\r\n    -InstallationPolicy Trusted\r\nInstall-Module `\r\n    -Name Az.Purview `\r\n    -Repository PSGallery `\r\n    -Force\r\n\r\n# Define Parameters\r\nWrite-Output \"Defining Parameters\"\r\n$tenantId = (Get-AzContext).Tenant.Id\r\n$purviewSubscriptionId = $PurviewId.Split(\"/\")[2]\r\n$purviewResourceGroupName = $PurviewId.Split(\"/\")[4]\r\n$purviewAccountName = $PurviewId.Split(\"/\")[8]\r\n\r\nif ($SetPurviewAccountAsDefault) {\r\n    # Set Purview Account as Default in Tenant\r\n    Write-Output \"Setting Purview Account as Default in Tenant\"\r\n    Set-AzPurviewDefaultAccount `\r\n        -ScopeTenantId $tenantId `\r\n        -ScopeType \"Tenant\" `\r\n        -Scope $tenantId `\r\n        -SubscriptionId $purviewSubscriptionId `\r\n        -ResourceGroupName $purviewResourceGroupName `\r\n        -AccountName $purviewAccountName\r\n} else {\r\n    # NOT Set Purview Account as Default in Tenant\r\n    Write-Output \"NOT Setting Purview Account as Default in Tenant\"\r\n}\r\n\r\nforeach ($purviewRootCollectionAdmin in $PurviewRootCollectionAdmins) {\r\n    # Set Purview Root Collection Admin\r\n    Write-Output \"Setting Purview Root Collection Admin '${purviewRootCollectionAdmin}'\"\r\n    Add-AzPurviewAccountRootCollectionAdmin `\r\n        -SubscriptionId $purviewSubscriptionId `\r\n        -ResourceGroupName $purviewResourceGroupName `\r\n        -AccountName $purviewAccountName `\r\n        -ObjectId $purviewRootCollectionAdmin\r\n}\r\n",
+                        "retentionInterval": "P1D",
+                        "supportingScriptUris": [],
+                        "timeout": "PT30M"
+                      }
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'userAssignedIdentity001')]",
+                "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('purviewSubscriptionId'), variables('purviewResourceGroupName')), 'Microsoft.Resources/deployments', 'userAssignedIdentity001RoleAssignmentPurview')]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-automation', variables('name')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-governance', variables('name'))), 'Microsoft.Resources/deployments', 'governanceResources')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "vnetId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices'), '2020-10-01').outputs.vnetId.value]"
+    },
+    "firewallPrivateIp": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-network', variables('name'))), 'Microsoft.Resources/deployments', 'networkServices'), '2020-10-01').outputs.firewallPrivateIp.value]"
+    },
+    "purviewId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-governance', variables('name'))), 'Microsoft.Resources/deployments', 'governanceResources'), '2020-10-01').outputs.purviewId.value]"
+    },
+    "purviewManagedStorageId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-governance', variables('name'))), 'Microsoft.Resources/deployments', 'governanceResources'), '2020-10-01').outputs.purviewManagedStorageId.value]"
+    },
+    "purviewManagedEventHubId": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-governance', variables('name'))), 'Microsoft.Resources/deployments', 'governanceResources'), '2020-10-01').outputs.purviewManagedEventHubId.value]"
+    },
+    "privateDnsZoneIdKeyVault": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdKeyVault.value, '')]"
+    },
+    "privateDnsZoneIdDataFactory": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdDataFactory.value, '')]"
+    },
+    "privateDnsZoneIdDataFactoryPortal": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdDataFactoryPortal.value, '')]"
+    },
+    "privateDnsZoneIdBlob": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdBlob.value, '')]"
+    },
+    "privateDnsZoneIdDfs": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdDfs.value, '')]"
+    },
+    "privateDnsZoneIdSqlServer": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdSqlServer.value, '')]"
+    },
+    "privateDnsZoneIdMySqlServer": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdMySqlServer.value, '')]"
+    },
+    "privateDnsZoneIdNamespace": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdNamespace.value, '')]"
+    },
+    "privateDnsZoneIdSynapseDev": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdSynapseDev.value, '')]"
+    },
+    "privateDnsZoneIdSynapseSql": {
+      "type": "string",
+      "value": "[if(parameters('enableDnsAndFirewallDeployment'), reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-global-dns', variables('name'))), 'Microsoft.Resources/deployments', 'globalDnsZones'), '2020-10-01').outputs.privateDnsZoneIdSynapseSql.value, '')]"
+    }
+  }
+}
